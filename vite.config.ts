@@ -9,7 +9,7 @@ export default defineConfig({
     fs: {
       allow: [
         searchForWorkspaceRoot(process.cwd()),
-        "/Users/xylonx/Documents/TUe/2IMV10",
+        "D:/study/Eindhoven Master Program/2024-q3/Visual Computing Project",
       ],
     },
   },

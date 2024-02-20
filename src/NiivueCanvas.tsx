@@ -2,7 +2,7 @@ import { Niivue } from "@niivue/niivue";
 import React, { useEffect, useRef } from "react";
 
 const niiFile = new URL(
-  "/Users/xylonx/Documents/TUe/2IMV10/Pandora-WhiteMatterAtlas/T1/T1.nii.gz",
+  "D:/study/Eindhoven Master Program/2024-q3/Visual Computing Project/project/Pandora-WhiteMatterAtlas/T1/T1.nii.gz",
   import.meta.url
 ).href;
 
