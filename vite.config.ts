@@ -9,7 +9,7 @@ export default defineConfig({
     fs: {
       allow: [
         searchForWorkspaceRoot(process.cwd()),
-        "/Users/xylonx/Documents/TUe/2IMV10",
+        "D:/Documents/Q3/Visual Computing Project/Pandora-WhiteMatterAtlas",
       ],
     },
   },
