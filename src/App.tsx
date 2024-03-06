@@ -1,5 +1,5 @@
 import { Slider, Grid, Typography, Button, FormControl, InputLabel,
-  Select, MenuItem, Box
+  Select, MenuItem
 } from "@mui/material";
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import {
@@ -106,9 +106,7 @@ const NiivueCanvas: React.FC<{
   }, [scale]);
 
   return (
-    <Box>
-      <canvas ref={canvasRef} height={height} width={width} />
-    </Box>
+    <canvas ref={canvasRef} height={height} width={width} />
   );
 };
 
@@ -307,14 +305,13 @@ function App() {
         {/* Upper part */}
         <Grid item xs={12} container style={{ backgroundColor: '#fff', height: '50%' }}>
           {/* 3D views */}
-          <Grid item xs={9} ref={gridRef3D} style={{ backgroundColor: '#eee' }}>
+          <Grid item xs={9} ref={gridRef3D} style={{ backgroundColor: '#eee', padding: '5px'}}>
             <NiivueCanvas
               nv={nv3DRef}
               volume={volume}
               scale={scale}
               clipPlane={[-0.2, 0, 120]}
               height={dimensions3D.height}
-              width={dimensions3D.width}
             />
           </Grid>
           {/* Labels info */}
@@ -322,8 +319,8 @@ function App() {
           </Grid>
         </Grid>
         {/* Lower part - 2D views */}
-        <Grid item xs={12} container style={{ backgroundColor: '#fff', height: '50%' }}>
-          <NiivueCanvas nv={nv2DRef} volume={volume} height={dimensions2D.height} width={dimensions2D.width} />
+        <Grid item xs={12} container style={{ backgroundColor: '#fff', height: '50%', padding: '5px'}}>
+          <NiivueCanvas nv={nv2DRef} height={dimensions3D.height} />
         </Grid>
       </Grid>
     </Grid>
