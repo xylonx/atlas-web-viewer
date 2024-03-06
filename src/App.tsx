@@ -1,6 +1,5 @@
-import { Slider, Grid, Typography, Button, FormControl, InputLabel,
-  Select, MenuItem
-} from "@mui/material";
+import { Slider, Grid, Typography, Button, FormControl, InputLabel, MenuItem } from "@mui/material";
+import Select, { SelectChangeEvent } from '@mui/material/Select';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import {
   DRAG_MODE,
@@ -114,6 +113,39 @@ function App() {
   const [volume, setVolume] = useState<File | undefined>(undefined);
 
   const [scale, setScale] = useState<number>(1);
+
+  const [bundleOptions, setBundleOptions] = useState<string[]>(["Corpus Callosum Forceps Major","Corpus Callosum Forceps Minor","Arcuate Fasciculus left","Cingulum - Cingulate Gyrus left","Cingulum - Hippocampal Gyrus left","Corticospinal Tract left","Inferior Occipito-frontal Fasciculus left","Inferior Longitudinal Fasciculus left","Superior Longitudinal Fasciculus left","Thalamic Radiation left","Uncinate Fasciculus left","Arcuate Fasciculus right","Cingulum - Cingulate Gyrus right","Cingulum - Hippocampal Gyrus right","Corticospinal Tract right","Inferior Occipito-frontal Fasciculus right","Inferior Longitudinal Fasciculus right","Superior Longitudinal Fasciculus right","Thalamic Radiation right","Uncinate Fasciculus right"]);
+
+  const handleTractographyChange = (event: SelectChangeEvent)=>{
+    let bundle_options : string[]
+    switch(event.target.value){
+      case "1":
+        bundle_options = ["Corpus Callosum Forceps Major","Corpus Callosum Forceps Minor","Arcuate Fasciculus left","Cingulum - Cingulate Gyrus left","Cingulum - Hippocampal Gyrus left","Corticospinal Tract left","Inferior Occipito-frontal Fasciculus left","Inferior Longitudinal Fasciculus left","Superior Longitudinal Fasciculus left","Thalamic Radiation left","Uncinate Fasciculus left","Arcuate Fasciculus right","Cingulum - Cingulate Gyrus right","Cingulum - Hippocampal Gyrus right","Corticospinal Tract right","Inferior Occipito-frontal Fasciculus right","Inferior Longitudinal Fasciculus right","Superior Longitudinal Fasciculus right","Thalamic Radiation right","Uncinate Fasciculus right"];
+        break;
+      case "2":
+        bundle_options = ["Corpus Callosum Forceps Major","Corpus Callosum Forceps Minor","Arcuate Fasciculus left","Cingulum - Cingulate Gyrus left","Cingulum - Hippocampal Gyrus left","Corticospinal Tract left","Inferior Occipito-frontal Fasciculus left","Inferior Longitudinal Fasciculus left","Superior Longitudinal Fasciculus left","Thalamic Radiation left","Uncinate Fasciculus left","Arcuate Fasciculus right","Cingulum - Cingulate Gyrus right","Cingulum - Hippocampal Gyrus right","Corticospinal Tract right","Inferior Occipito-frontal Fasciculus right","Inferior Longitudinal Fasciculus right","Superior Longitudinal Fasciculus right","Thalamic Radiation right","Uncinate Fasciculus right"];
+        break;  
+      case "3":
+        bundle_options = ["Arcuate Fasciculus left","Arcuate Fasciculus left","Frontal Aslant Tract left","Frontal Aslant Tract right","Cerebellum left","Cerebellum right","Corpus Callosum Major","Corpus Callosum Minor","Full corpus callosum","Corpus Callosum Mid","Corticospinal Tract left","Corticospinal Tract left","Central Tegmental Tract left","Central Tegmental Tract right","Extreme Capsule left","Extreme Capsule right","Fronto-pontine tract left","Fronto-pontine tract right","Inferior Fronto-occipital Fasciculus left","Inferior Fronto-occipital Fasciculus right","Inferior Longitudinal Fasciculus left","Inferior Longitudinal Fasciculus right","Middle Cerebellar Peduncle","Middle Longitudinal Fasciculus left","Middle Longitudinal Fasciculus right","Medial Longitudinal fasciculus left","Medial Longitudinal fasciculus right","Medial Lemniscus left","Medial Lemniscus right","Occipito Pontine Tract left","Occipito Pontine Tract right","Optic Radiation left","Optic Radiation right","Parieto Pontine Tract left","Parieto Pontine Tract right","Superior longitudinal fasciculus left","Superior longitudinal fasciculus right","Spinothalamic Tract left","Spinothalamic Tract right","Temporopontine Tract left","Temporopontine Tract right","Uncinate Fasciculus left","Uncinate Fasciculus right","Vermis"];
+        break;
+      case "4":
+        bundle_options = ["Arcuate fascicle left","Arcuate fascicle right","Anterior Thalamic Radiation left","Anterior Thalamic Radiation right","Commissure Anterior","Rostrum","Genu","Rostral body (Premotor)","Anterior midbody (Primary Motor)","Posterior midbody (Primary Somatosensory)","Isthmus","Splenium","Corpus Callosum - all","Cingulum left","Cingulum right","Corticospinal tract left","Corticospinal tract right","Fronto-pontine tract left","Fronto-pontine tract right","Fornix left","Fornix right","Inferior cerebellar peduncle left","Inferior cerebellar peduncle right","Inferior occipito-frontal fascicle left","Inferior occipito-frontal fascicle right","Inferior longitudinal fascicle left","Inferior longitudinal fascicle right","Middle cerebellar peduncle","Middle longitudinal fascicle left","Middle longitudinal fascicle right","Optic radiation left","Optic radiation right","Parieto-occipital pontine left","Parieto-occipital pontine right","Superior cerebellar peduncle left","Superior cerebellar peduncle right","Superior longitudinal fascicle III left","Superior longitudinal fascicle III right","Superior longitudinal fascicle II left","Superior longitudinal fascicle II right","Superior longitudinal fascicle I left","Superior longitudinal fascicle I right","Striato-fronto-orbital left","Striato-fronto-orbital right","Striato-occipital left","Striato-occipital right","Striato-parietal left","Striato-parietal right","Striato-postcentral left","Striato-postcentral right","Striato-precentral left","Striato-precentral right","Striato-prefrontal left","Striato-prefrontal right","Striato-premotor left","Striato-premotor right","Superior Thalamic Radiation left","Superior Thalamic Radiation right","Thalamo-occipital left","Thalamo-occipital right","Thalamo-parietal left","Thalamo-parietal right","Thalamo-postcentral left","Thalamo-postcentral right","Thalamo-precentral left","Thalamo-precentral right","Thalamo-prefrontal left","Thalamo-prefrontal right","Thalamo-premotor left","Thalamo-premotor right","Uncinate fascicle left","Uncinate fascicle right"];
+        break;
+      case "5":
+        bundle_options = ["Corpus Callosum Forceps Major","Corpus Callosum Forceps Minor","Anterior Thalamic Radiation left","Cingulum - Angular Bundle left","Cingulum - Cingulate Gyrus left","Corticospinal Tract left","Inferior Longitudinal Fasciculus left","Superior Longitudinal Fasciculus - Parietal left","Superior Longitudinal Fasciculus - Temporal left","Uncinate Fasciculus left","Anterior Thalamic Radiation right","Cingulum - Angular Bundle right","Cingulum - Cingulate Gyrus right","Corticospinal Tract right","Inferior Longitudinal Fasciculus right","Superior Longitudinal Fasciculus - Parietal right","Superior Longitudinal Fasciculus - Temporal right","Uncinate Fasciculus right"];
+        break;
+      case "6":
+        bundle_options = ["Anterior Commissure","Arcuate Fascile left","Arcuate Fascile right","Acoustic Radiation left","Acoustic Radiation right","Anterior Thalamic Radiation left","Anterior Thalamic Radiation right","Cingulum Bundle Dorsal left","Cingulum Bundle Dorsal right","Cingulum Bundle Parahippocampal left","Cingulum Bundle Parahippocampal right","Cingulum Bundle Temporal left","Cingulum Bundle Temporal right","Corticospinal Tract left","Corticospinal Tract right","Frontal Aslant left","Frontal Aslant right","Forceps Major","Forceps Minor","Fornix left","Fornix right","Inferior Fronto-occipital Fasciculus left","Inferior Fronto-occipital Fasciculus right","Inferior Longitudinal Fasciculus left","Inferior Longitudinal Fasciculus right","Middle Cerebellar Peduncle","Medio-Dorsal Longitudinal Fasciculus left","Medio-Dorsal Longitudinal Fasciculus right","Optic Radiation left","Optic Radiation right","Superior Longitudinal Fasciculus 1 left","Superior Longitudinal Fasciculus 1 right","Superior Longitudinal Fasciculus 2 left","Superior Longitudinal Fasciculus 2 right","Superior Longitudinal Fasciculus 3 left","Superior Longitudinal Fasciculus 3 right","Superior Thalamic Radiation left","Superior Thalamic Radiation right","Uncinate Fasciculus left","Uncinate Fasciculus right","Vertical Occipital Fasciculus left","Vertical Occipital Fasciculus right"];
+        break;    
+      default:
+        bundle_options = ["Corpus Callosum Forceps Major","Corpus Callosum Forceps Minor","Arcuate Fasciculus left","Cingulum - Cingulate Gyrus left","Cingulum - Hippocampal Gyrus left","Corticospinal Tract left","Inferior Occipito-frontal Fasciculus left","Inferior Longitudinal Fasciculus left","Superior Longitudinal Fasciculus left","Thalamic Radiation left","Uncinate Fasciculus left","Arcuate Fasciculus right","Cingulum - Cingulate Gyrus right","Cingulum - Hippocampal Gyrus right","Corticospinal Tract right","Inferior Occipito-frontal Fasciculus right","Inferior Longitudinal Fasciculus right","Superior Longitudinal Fasciculus right","Thalamic Radiation right","Uncinate Fasciculus right"];        
+    }
+    setBundleOptions(bundle_options)
+  }
+
+  const handleAtalasSelection = (event : SelectChangeEvent)=>{
+    console.log(event.target.value)
+  }
 
   // Create canvas instances
   const nv3DRef = useRef<Niivue>(
@@ -244,9 +276,14 @@ function App() {
           <Grid item xs={12}>
             <FormControl fullWidth>
               <InputLabel>Select Model Type</InputLabel>
-              <Select label="Select Model Type" defaultValue="">
+              <Select label="Select Model Type" defaultValue="" onChange={handleTractographyChange}>
                 <MenuItem value="">-</MenuItem>
-                <MenuItem value="T1">T1</MenuItem>
+                <MenuItem value="1">AFQ</MenuItem>
+                <MenuItem value="2">AFQclipped</MenuItem>
+                <MenuItem value="3">Recobundles</MenuItem>
+                <MenuItem value="4">TractSeg</MenuItem>
+                <MenuItem value="5">Tracula</MenuItem>
+                <MenuItem value="6">Xtract</MenuItem>
               </Select>
             </FormControl>
           </Grid>
@@ -281,13 +318,24 @@ function App() {
           </Grid>
         </Grid>
         {/* Track selection */}
-        <Grid item xs={12} style={{ backgroundColor: '#aaa', height: '60%' }}>
+        <Grid item xs={12} style={{ backgroundColor: '#aaa', height: '60%', padding: '5px' }}>
+          <FormControl fullWidth>
+            <InputLabel>Select Track</InputLabel>
+            <Select label="Select Track" defaultValue="" onChange={handleAtalasSelection}>
+              <MenuItem value="">-</MenuItem>
+              {bundleOptions.map((option, index) => (
+                <MenuItem key = {index} value={index}>
+                  {option}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
         </Grid>
       </Grid>
       {/* Right side */}
       <Grid item xs={10} container style={{ backgroundColor: '#ccc' }}>
         {/* Upper part */}
-        <Grid item xs={12} ref={gridRef3D} container style={{ backgroundColor: '#bbb' }}>
+        <Grid item xs={12} container ref={gridRef3D} style={{ backgroundColor: '#bbb' }}>
           {/* 3D views */}
           <Grid item xs={9} style={{ backgroundColor: '#eee', padding: '5px'}}>
             <NiivueCanvas
@@ -305,7 +353,7 @@ function App() {
         </Grid>
         {/* Lower part - 2D views */}
         <Grid item xs={12} style={{ backgroundColor: '#ccc', height: '50%', padding: '5px'}}>
-          <NiivueCanvas nv={nv2DRef} height={dimensions3D.height} width={dimensions3D.width} />
+          <NiivueCanvas nv={nv2DRef} volume={volume} height={dimensions3D.height} width={dimensions3D.width} />
         </Grid>
       </Grid>
     </Grid>
