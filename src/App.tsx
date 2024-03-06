@@ -217,9 +217,7 @@ function App() {
 
   // Monitor canvasview Grid size changes
   const gridRef3D = useRef(null);
-  const gridRef2D = useRef(null);
   const [dimensions3D, setDimensions3D] = useState({ width: 0, height: 0 });
-  const [dimensions2D, setDimensions2D] = useState({ width: 0, height: 0 });
 
   useEffect(() => {
     const observeTarget = gridRef3D.current;
@@ -234,20 +232,6 @@ function App() {
       return () => resizeObserver.unobserve(observeTarget); // Clean
     }
   }, [gridRef3D]);
-
-  useEffect(() => {
-    const observeTarget = gridRef2D.current;
-    if (observeTarget) {
-      const resizeObserver = new ResizeObserver(entries => {
-        entries.forEach(entry => {
-          const { width, height } = entry.contentRect;
-          setDimensions2D({ width, height }); // Update height and width
-        });
-      });
-      resizeObserver.observe(observeTarget);
-      return () => resizeObserver.unobserve(observeTarget); // Clean
-    }
-  }, [gridRef2D]);
 
   return (
     <Grid container style={{ height: '100vh' }}>
@@ -303,24 +287,25 @@ function App() {
       {/* Right side */}
       <Grid item xs={10} container style={{ backgroundColor: '#ccc' }}>
         {/* Upper part */}
-        <Grid item xs={12} container style={{ backgroundColor: '#fff', height: '50%' }}>
+        <Grid item xs={12} ref={gridRef3D} container style={{ backgroundColor: '#bbb' }}>
           {/* 3D views */}
-          <Grid item xs={9} ref={gridRef3D} style={{ backgroundColor: '#eee', padding: '5px'}}>
+          <Grid item xs={9} style={{ backgroundColor: '#eee', padding: '5px'}}>
             <NiivueCanvas
               nv={nv3DRef}
               volume={volume}
               scale={scale}
               clipPlane={[-0.2, 0, 120]}
               height={dimensions3D.height}
+              width={dimensions3D.width * 0.75}
             />
           </Grid>
           {/* Labels info */}
-          <Grid item xs={3} ref={gridRef2D} style={{ backgroundColor: '#aaa' }}>
+          <Grid item xs={3} style={{ backgroundColor: '#aaa' }}>
           </Grid>
         </Grid>
         {/* Lower part - 2D views */}
-        <Grid item xs={12} container style={{ backgroundColor: '#fff', height: '50%', padding: '5px'}}>
-          <NiivueCanvas nv={nv2DRef} height={dimensions3D.height} />
+        <Grid item xs={12} style={{ backgroundColor: '#ccc', height: '50%', padding: '5px'}}>
+          <NiivueCanvas nv={nv2DRef} height={dimensions3D.height} width={dimensions3D.width} />
         </Grid>
       </Grid>
     </Grid>
