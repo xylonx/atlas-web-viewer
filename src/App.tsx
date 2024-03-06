@@ -1,11 +1,19 @@
 import { Slider, Grid, Typography, Button, FormControl, InputLabel,
-  Select, MenuItem
+  Select, MenuItem, Box
 } from "@mui/material";
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
-import { useState } from "react";
+import {
+  DRAG_MODE,
+  LabelLineTerminator,
+  LabelTextAlignment,
+  NVImage,
+  Niivue,
+  SLICE_TYPE,
+} from "@niivue/niivue";
+import { useState, MutableRefObject, useEffect, useRef } from "react";
 import "./App.css";
-import { NiivueComponent } from "./NiivueCanvas";
 
+// Upload Component
 const FileInput: React.FC<{
   onChooseFile: (file: File) => void;
 }> = ({ onChooseFile }) => {
@@ -28,10 +36,220 @@ const FileInput: React.FC<{
   );
 };
 
+// Niivue Canvas Component
+const NiivueCanvas: React.FC<{
+  nv: MutableRefObject<Niivue>;
+  volume?: File;
+  onVolumeLoadError?: () => Promise<void>;
+  renderMode?: number;
+  clipPlane?: number[];
+  scale?: number;
+  height?: number;
+  width?: number;
+}> = ({
+  nv,
+  volume,
+  onVolumeLoadError,
+  renderMode,
+  clipPlane,
+  scale,
+  height,
+  width,
+}) => {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+
+  const mountCanvas = async () => {
+    await nv.current.attachToCanvas(canvasRef.current!, true);
+  };
+
+  const loadVolume = async (volume: File) => {
+    try {
+      console.log(`load volume: start: ${volume}`);
+      const nvVolume = await NVImage.loadFromFile({
+        file: volume,
+        colormap: "gray",
+        opacity: 1,
+        visible: true,
+      });
+      nv.current.setVolume(nvVolume);
+      nv.current.updateGLVolume();
+      console.log(`load volume: finish: ${volume}`);
+    } catch (error) {
+      console.log(`load volume: error: ${error}`);
+      onVolumeLoadError && (await onVolumeLoadError());
+    }
+  };
+
+  useEffect(() => {
+    nv.current.resizeListener();
+  });
+
+  useEffect(() => {
+    mountCanvas();
+  }, []);
+
+  useEffect(() => {
+    volume && loadVolume(volume);
+  }, [volume]);
+
+  useEffect(() => {
+    const mode = renderMode ?? 0.6;
+    nv.current.setVolumeRenderIllumination(mode);
+  }, [renderMode]);
+
+  useEffect(() => {
+    clipPlane && nv.current.setClipPlane(clipPlane);
+  }, [clipPlane]);
+
+  useEffect(() => {
+    scale && nv.current.setScale(scale);
+  }, [scale]);
+
+  return (
+    <Box>
+      <canvas ref={canvasRef} height={height} width={width} />
+    </Box>
+  );
+};
+
 function App() {
   const [volume, setVolume] = useState<File | undefined>(undefined);
 
   const [scale, setScale] = useState<number>(1);
+
+  // Create canvas instances
+  const nv3DRef = useRef<Niivue>(
+    new Niivue({
+      logLevel: "error",
+      dragAndDropEnabled: true,
+      show3Dcrosshair: true,
+      backColor: [0.3, 0.3, 0.3, 1],
+      clipPlaneColor: [0, 0, 0, 0.2],
+      isOrientCube: true,
+      dragMode: DRAG_MODE.slicer3D,
+      multiplanarForceRender: true,
+    })
+  );
+
+  const nv2DRef = useRef<Niivue>(
+    new Niivue({
+      logLevel: "error",
+      dragAndDropEnabled: true,
+      show3Dcrosshair: false,
+      backColor: [0.3, 0.3, 0.3, 1],
+      isOrientCube: false,
+      dragMode: DRAG_MODE.none,
+      multiplanarForceRender: false,
+    })
+  );
+
+  // tolerance: only 15mm from clicked location
+  const isLabelExists = (point: number[], tolerance = 15) => {
+    const labels = nv3DRef.current.getAllLabels();
+    return labels.find((label) => {
+      const lb = label.points as number[];
+      const dis =
+        Math.pow(lb[0] - point[0], 2) +
+        Math.pow(lb[1] - point[1], 2) +
+        Math.pow(lb[2] - point[2], 2);
+      return dis <= Math.pow(tolerance, 2);
+    });
+  };
+
+  const appendLabels = (mm: any) => {
+    let xyzmm = [mm["0"], mm["1"], mm["2"]];
+
+    if (!isLabelExists(xyzmm)) {
+      nv3DRef.current.addLabel(
+        "Label",
+        {
+          textScale: 2.0,
+          textAlignment: LabelTextAlignment.CENTER,
+          textColor: [0.0, 1.0, 0.0, 1.0],
+          lineWidth: 3,
+          lineColor: [0.0, 1.0, 0.0, 1.0],
+          lineTerminator: LabelLineTerminator.NONE,
+        },
+        xyzmm
+      );
+    }
+  };
+
+  const handleClearLabels = () => {
+    nv3DRef.current.document.labels = [];
+    nv3DRef.current.updateGLVolume();
+  };
+
+  const hideLabels = () => {
+    const labels = nv3DRef.current.getAllLabels();
+    labels.forEach((val) => {
+      val.style.lineWidth = val.style.lineWidth == 0 ? 4 : 0;
+    });
+    nv3DRef.current.document.labels = labels;
+    nv3DRef.current.updateGLVolume();
+  };
+
+  // sync between 2d and 3d layer
+  useEffect(() => {
+    nv3DRef.current.setSliceType(SLICE_TYPE.RENDER);
+
+    nv2DRef.current.setHighResolutionCapable(true);
+    nv3DRef.current.setHighResolutionCapable(true);
+
+    nv3DRef.current.setRadiologicalConvention(false);
+    nv2DRef.current.setRadiologicalConvention(false);
+
+    nv3DRef.current.onClipPlaneChange = (clipPlane) => {
+      console.log(`on clip plane change: ${clipPlane}`);
+    };
+
+    nv3DRef.current.onLocationChange = (data: any) => {
+      console.log(`3d: location change: ${JSON.stringify(data)}`);
+      appendLabels(data["mm"]);
+    };
+    // nv2DRef.current.onLocationChange = () => {};
+
+    nv2DRef.current.setInterpolation(false);
+    nv3DRef.current.setInterpolation(false);
+
+    // only sync 2d data
+    nv2DRef.current.broadcastTo(nv3DRef.current, { "2d": true, "3d": false });
+    nv3DRef.current.broadcastTo(nv2DRef.current, { "2d": true, "3d": false });
+  }, []);
+
+  // Monitor canvasview Grid size changes
+  const gridRef3D = useRef(null);
+  const gridRef2D = useRef(null);
+  const [dimensions3D, setDimensions3D] = useState({ width: 0, height: 0 });
+  const [dimensions2D, setDimensions2D] = useState({ width: 0, height: 0 });
+
+  useEffect(() => {
+    const observeTarget = gridRef3D.current;
+    if (observeTarget) {
+      const resizeObserver = new ResizeObserver(entries => {
+        entries.forEach(entry => {
+          const { width, height } = entry.contentRect;
+          setDimensions3D({ width, height }); // Update height and width
+        });
+      });
+      resizeObserver.observe(observeTarget);
+      return () => resizeObserver.unobserve(observeTarget); // Clean
+    }
+  }, [gridRef3D]);
+
+  useEffect(() => {
+    const observeTarget = gridRef2D.current;
+    if (observeTarget) {
+      const resizeObserver = new ResizeObserver(entries => {
+        entries.forEach(entry => {
+          const { width, height } = entry.contentRect;
+          setDimensions2D({ width, height }); // Update height and width
+        });
+      });
+      resizeObserver.observe(observeTarget);
+      return () => resizeObserver.unobserve(observeTarget); // Clean
+    }
+  }, [gridRef2D]);
 
   return (
     <Grid container style={{ height: '100vh' }}>
@@ -56,8 +274,8 @@ function App() {
           </Grid>
           {/* Other Buttons */}
           <Grid item xs={12}>
-            <Button variant="outlined">Reset</Button>
-            <Button variant="outlined" style={{ marginLeft: '5px' }}>Delete</Button>
+            <Button variant="outlined" onClick={handleClearLabels}>Clear</Button>
+            <Button variant="outlined" onClick={hideLabels} style={{ marginLeft: '5px' }}>Hide</Button>
           </Grid>
           {/* Slider */}
           <Grid item container xs={12}>
@@ -88,15 +306,24 @@ function App() {
       <Grid item xs={10} container style={{ backgroundColor: '#ccc' }}>
         {/* Upper part */}
         <Grid item xs={12} container style={{ backgroundColor: '#fff', height: '50%' }}>
-          <Grid item xs={9} style={{ backgroundColor: '#eee' }}>
-          
+          {/* 3D views */}
+          <Grid item xs={9} ref={gridRef3D} style={{ backgroundColor: '#eee' }}>
+            <NiivueCanvas
+              nv={nv3DRef}
+              volume={volume}
+              scale={scale}
+              clipPlane={[-0.2, 0, 120]}
+              height={dimensions3D.height}
+              width={dimensions3D.width}
+            />
           </Grid>
-          <Grid item xs={3} style={{ backgroundColor: '#aaa' }}>
-          
+          {/* Labels info */}
+          <Grid item xs={3} ref={gridRef2D} style={{ backgroundColor: '#aaa' }}>
           </Grid>
         </Grid>
-        {/* Lower part */}
+        {/* Lower part - 2D views */}
         <Grid item xs={12} container style={{ backgroundColor: '#fff', height: '50%' }}>
+          <NiivueCanvas nv={nv2DRef} volume={volume} height={dimensions2D.height} width={dimensions2D.width} />
         </Grid>
       </Grid>
     </Grid>
