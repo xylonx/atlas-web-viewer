@@ -1,19 +1,12 @@
-// import React from 'react'
-import Box from "@mui/material/Box";
-import Container from "@mui/material/Container";
-import Typography from "@mui/material/Typography";
-import "./App.css";
-import NV from "./NiivueCanvas";
+import '@mantine/core/styles.css';
+import { MantineProvider } from '@mantine/core';
+import { Router } from './Router';
+import { theme } from './theme';
 
-function App() {
+export default function App() {
   return (
-    <Container>
-      <Box>
-        <Typography variant="h4">NiiVue web</Typography>
-        <NV onMark={async () => {}} model="./" />
-      </Box>
-    </Container>
+    <MantineProvider theme={theme}>
+      <Router />
+    </MantineProvider>
   );
 }
-
-export default App;
