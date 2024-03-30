@@ -31,11 +31,15 @@ export const ControlPanel: React.FC<{
   onVolumeAdd: (volume: NVVolume) => void;
   onVolumeDelete: (volume: NVVolume) => void;
   onVolumeChange4D?: (nvVolume: NVImage, index: VolumeDescription) => void;
-  // onVolumeIndex4DChange: (volume: NVImage, idx: number) => void;
 
   meshes: NVMesh[];
   onMeshAdd: (meshBuilder: (gl: WebGL2RenderingContext) => Promise<NVMesh>) => void;
   onMeshDelete: (mesh: NVMesh) => void;
+
+  colorMaps?: string[];
+  onVolumeColorMapChange?: (volume: NVVolume, cm: string) => void;
+  onMeshColorMapChange?: (mesh: NVMesh, cm: string) => void;
+  onGammaChange?: (gamma: number) => void;
 
   scale: number;
   onScaleChange: (scale: number) => void;
@@ -50,6 +54,10 @@ export const ControlPanel: React.FC<{
   meshes,
   onMeshAdd,
   onMeshDelete,
+  colorMaps,
+  onVolumeColorMapChange,
+  onMeshColorMapChange,
+  onGammaChange,
   scale,
   onScaleChange,
   clipPlane,
@@ -68,11 +76,21 @@ export const ControlPanel: React.FC<{
           onVolumeAdd={onVolumeAdd}
           onVolumeDelete={onVolumeDelete}
           onVolumeChange4D={onVolumeChange4D}
+          colorMaps={colorMaps}
+          onColorMapChange={onVolumeColorMapChange}
+          onGammaChange={onGammaChange}
         />
       </ControlItem>
 
       <ControlItem name="meshes" description={meshes.map((m) => m.name).join(', ')}>
-        <MeshController meshes={meshes} onMeshAdd={onMeshAdd} onMeshDelete={onMeshDelete} />
+        <MeshController
+          meshes={meshes}
+          onMeshAdd={onMeshAdd}
+          onMeshDelete={onMeshDelete}
+          colorMaps={colorMaps}
+          onColorMapChange={onMeshColorMapChange}
+          onGammaChange={onGammaChange}
+        />
       </ControlItem>
 
       <ControlItem name="scale" description={`${scale}x`}>

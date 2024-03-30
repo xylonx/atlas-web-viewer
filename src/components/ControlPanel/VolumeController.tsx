@@ -13,6 +13,7 @@ import { IconDotsVertical, IconPlus, IconTrash } from '@tabler/icons-react';
 import Papa from 'papaparse';
 import { useState } from 'react';
 import { toast } from 'react-toastify';
+import { ColorMapPopoverSelector } from './NiivueIconActions';
 
 const TableHeaderMap = new Map<string, string>([
   ['ID', 'id'],
@@ -88,49 +89,92 @@ const VolumeItem: React.FC<{
   volume: NVVolume;
   onVolumeDelete: (volume: NVVolume) => void;
   onVolumeChange4D?: (nvVolume: NVImage, index: VolumeDescription) => void;
-}> = ({ volume, onVolumeDelete, onVolumeChange4D }) => (
-  <Accordion.Item value={volume.volume.name}>
-    <Center>
-      <Accordion.Control>{volume.volume.name}</Accordion.Control>
-      <ActionIcon size="lg" variant="subtle" color="red" onClick={() => onVolumeDelete(volume)}>
-        <IconTrash />
-      </ActionIcon>
-      {volume.desc && onVolumeChange4D && (
-        <Popover>
-          <Popover.Target>
-            <ActionIcon size="lg" variant="subtle" color="grey">
-              <IconDotsVertical />
-            </ActionIcon>
-          </Popover.Target>
-          <Popover.Dropdown>
-            {/* <Select
-            label="Select within Popover"
-            placeholder="Select within Popover"
-            comboboxProps={{ withinPortal: false }}
-            data={['React', 'Angular', 'Svelte', 'Vue']}
-          /> */}
-            <Volume4DSelector
-              desces={volume.desc}
-              on4DChange={(desc) => onVolumeChange4D(volume.volume, desc)}
-            />
-          </Popover.Dropdown>
-        </Popover>
-      )}
-    </Center>
-  </Accordion.Item>
-);
+
+  colorMaps?: string[];
+  onColorMapChange?: (cm: string) => void;
+
+  gamma?: number;
+  onGammaChange?: (gamma: number) => void;
+}> = ({
+  volume,
+  onVolumeDelete,
+  onVolumeChange4D,
+  colorMaps,
+  onColorMapChange,
+  gamma,
+  onGammaChange,
+}) => {
+  const [currentColorMap, setCurrentColorMap] = useState<string | undefined>(
+    colorMaps && colorMaps[0]
+  );
+
+  return (
+    <Accordion.Item value={volume.volume.name}>
+      <Center>
+        <Accordion.Control>{volume.volume.name}</Accordion.Control>
+
+        {colorMaps && currentColorMap && onColorMapChange && (
+          <ColorMapPopoverSelector
+            colorMaps={colorMaps}
+            currentColorMap={currentColorMap}
+            onColorMapChange={(cm) => {
+              onColorMapChange(cm);
+              setCurrentColorMap(cm);
+            }}
+            gamma={gamma}
+            onGammaChange={onGammaChange}
+          />
+        )}
+
+        <ActionIcon size="lg" variant="subtle" color="red" onClick={() => onVolumeDelete(volume)}>
+          <IconTrash />
+        </ActionIcon>
+
+        {volume.desc && onVolumeChange4D && (
+          <Popover>
+            <Popover.Target>
+              <ActionIcon size="lg" variant="subtle" color="grey">
+                <IconDotsVertical />
+              </ActionIcon>
+            </Popover.Target>
+            <Popover.Dropdown>
+              <Volume4DSelector
+                desces={volume.desc}
+                on4DChange={(desc) => onVolumeChange4D(volume.volume, desc)}
+              />
+            </Popover.Dropdown>
+          </Popover>
+        )}
+      </Center>
+    </Accordion.Item>
+  );
+};
 
 export const VolumeController: React.FC<{
   volumes: NVVolume[];
   onVolumeAdd: (volume: NVVolume) => void;
   onVolumeDelete: (volume: NVVolume) => void;
   onVolumeChange4D?: (nvVolume: NVImage, index: VolumeDescription) => void;
-}> = ({ volumes, onVolumeAdd, onVolumeDelete, onVolumeChange4D }) => {
+
+  colorMaps?: string[];
+  onColorMapChange?: (volume: NVVolume, cm: string) => void;
+
+  onGammaChange?: (gamma: number) => void;
+}> = ({
+  volumes,
+  onVolumeAdd,
+  onVolumeDelete,
+  onVolumeChange4D,
+  colorMaps,
+  onColorMapChange,
+  onGammaChange,
+}) => {
   const [volumeFile, setVolumeFile] = useState<File | null>(null);
   const [volumeDescFile, setVolumeDescFile] = useState<File | null>(null);
 
   const [loading, setLoading] = useState(false);
-  // loading loaderProps={{ type: 'dots' }}
+
+  const [gamma, setGamma] = useState(1);
 
   const parseCSVAsync = (file: File) =>
     new Promise<VolumeDescription[]>((resolve, reject) => {
@@ -173,7 +217,7 @@ export const VolumeController: React.FC<{
   };
 
   return (
-    <Accordion chevron={false} maw={400} mx="auto" multiple>
+    <Accordion chevron={false} maw="24em" mx="auto" multiple>
       <Group>
         <FileInput
           size="xs"
@@ -208,6 +252,13 @@ export const VolumeController: React.FC<{
           volume={volume}
           onVolumeChange4D={onVolumeChange4D}
           onVolumeDelete={onVolumeDelete}
+          colorMaps={colorMaps}
+          onColorMapChange={(cm) => onColorMapChange && onColorMapChange(volume, cm)}
+          gamma={gamma}
+          onGammaChange={(g) => {
+            onGammaChange && onGammaChange(g);
+            setGamma(g);
+          }}
         />
       ))}
     </Accordion>
