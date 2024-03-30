@@ -1,14 +1,4 @@
-import {
-  Avatar,
-  Box,
-  Center,
-  Flex,
-  Group,
-  LoadingOverlay,
-  ScrollArea,
-  Stack,
-  Text,
-} from '@mantine/core';
+import { Avatar, Box, Center, Flex, Group, ScrollArea, Stack, Text } from '@mantine/core';
 import { DRAG_MODE, NVImage, NVLabel3D, NVMesh, Niivue, SLICE_TYPE } from '@niivue/niivue';
 import { IconStar } from '@tabler/icons-react';
 import { useEffect, useRef, useState } from 'react';
@@ -58,38 +48,25 @@ export function HomePage() {
     nv2DRef.current.setInterpolation(false);
     nv3DRef.current.setInterpolation(false);
 
-    // hook changes
-
-    // nv3DRef.current.setClipPlane(clipPlane);
-
-    // nv3DRef.current.onLocationChange = (data: any) => {
-    //   setLocation([data.mm['0'], data.mm['1'], data.mm['2']]);
-    // };
-
     // only sync 2d data
     nv2DRef.current.broadcastTo(nv3DRef.current, { '2d': true, '3d': false });
     nv3DRef.current.broadcastTo(nv2DRef.current, { '2d': true, '3d': false });
   }, []);
 
-  const [loading, setLoading] = useState<boolean>(false);
-
   const [volumes, setVolumes] = useState<NVVolume[]>([]);
 
   const handleVolumeAdd = (volume: NVVolume) => {
-    setLoading(true);
-
     try {
-      setVolumes([volume, ...volumes]);
       nv3DRef.current.addVolume(volume.volume);
       nv2DRef.current.addVolume(volume.volume);
+
+      setVolumes([volume, ...volumes]);
     } catch (e) {
       toast.error(`add volume failed: ${e}`);
+    } finally {
+      nv3DRef.current.updateGLVolume();
+      nv2DRef.current.updateGLVolume();
     }
-
-    nv3DRef.current.updateGLVolume();
-    nv2DRef.current.updateGLVolume();
-
-    setLoading(false);
   };
 
   const handleVolumeChange4D = (nvVol: NVImage, desc: VolumeDescription) => {
@@ -112,23 +89,19 @@ export function HomePage() {
   const [meshes, setMeshes] = useState<NVMesh[]>([]);
 
   const handleMeshAdd = async (meshBuilder: (gl: WebGL2RenderingContext) => Promise<NVMesh>) => {
-    setLoading(true);
-
     try {
       const mesh = await meshBuilder(nv3DRef.current.gl);
 
-      setMeshes([mesh, ...meshes]);
-
       nv3DRef.current.addMesh(mesh);
       nv2DRef.current.addMesh(mesh);
+
+      setMeshes([mesh, ...meshes]);
     } catch (e) {
       toast.error(`add mesh failed: ${e}`);
+    } finally {
+      nv3DRef.current.updateGLVolume();
+      nv2DRef.current.updateGLVolume();
     }
-
-    nv3DRef.current.updateGLVolume();
-    nv2DRef.current.updateGLVolume();
-
-    setLoading(false);
   };
 
   const handleMeshDelete = (mesh: NVMesh) => {
@@ -207,17 +180,38 @@ export function HomePage() {
     removeNVLabel(nv3DRef, label);
   };
 
+  const handleVolumeColorMapChange = (vol: NVVolume, cm: string) => {
+    nv3DRef.current.setColormap(vol.volume.id, cm);
+    nv2DRef.current.setColormap(vol.volume.id, cm);
+    nv3DRef.current.updateGLVolume();
+    nv2DRef.current.updateGLVolume();
+  };
+
+  const handleMeshColorMapChange = (mesh: NVMesh, cm: string) => {
+    const idx = nv3DRef.current.getMeshIndexByID(mesh.id);
+    if (idx < 0) {
+      toast.error(`change mesh color map failed: cannot find mesh: ${mesh.id}`);
+      return;
+    }
+
+    nv3DRef.current.meshes[idx].setLayerProperty(1, 'colormap', cm, nv3DRef.current.gl);
+    nv2DRef.current.meshes[idx].setLayerProperty(1, 'colormap', cm, nv3DRef.current.gl);
+
+    nv3DRef.current.updateGLVolume();
+    nv2DRef.current.updateGLVolume();
+  };
+
+  const handleGammaChange = (gamma: number) => {
+    nv3DRef.current.setGamma(gamma);
+    nv2DRef.current.setGamma(gamma);
+
+    nv3DRef.current.updateGLVolume();
+    nv2DRef.current.updateGLVolume();
+  };
+
   return (
     <>
       <Stack>
-        <Box pos="relative">
-          <LoadingOverlay
-            visible={loading}
-            zIndex={1000}
-            overlayProps={{ radius: 'sm', blur: 2 }}
-          />
-        </Box>
-
         <Group h="100%" px="md">
           <Avatar color="blue" radius="sm">
             <IconStar size="1.5rem" />
@@ -243,6 +237,10 @@ export function HomePage() {
                 onScaleChange={setScale}
                 clipPlane={clipPlane}
                 onClipPlaneChange={handleClipPlaneChange}
+                colorMaps={nv3DRef.current.colormaps()}
+                onVolumeColorMapChange={handleVolumeColorMapChange}
+                onMeshColorMapChange={handleMeshColorMapChange}
+                onGammaChange={handleGammaChange}
               />
 
               <Center>

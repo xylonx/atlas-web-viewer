@@ -1,35 +1,65 @@
 import { Accordion, ActionIcon, Center, FileInput, Group } from '@mantine/core';
 import { NVMesh } from '@niivue/niivue';
-import { IconDotsVertical, IconPlus, IconTrash } from '@tabler/icons-react';
+import { IconPlus, IconTrash } from '@tabler/icons-react';
 import { decompress } from 'fflate';
 import { useState } from 'react';
 import { toast } from 'react-toastify';
+import { ColorMapPopoverSelector } from './NiivueIconActions';
 
 const MeshItem: React.FC<{
   mesh: NVMesh;
   onMeshDelete: (mesh: NVMesh) => void;
-}> = ({ mesh, onMeshDelete }) => (
-  <Accordion.Item value={mesh.name}>
-    <Center>
-      <Accordion.Control>{mesh.name}</Accordion.Control>
-      <ActionIcon size="lg" variant="subtle" color="red" onClick={() => onMeshDelete(mesh)}>
-        <IconTrash />
-      </ActionIcon>
-      <ActionIcon size="lg" variant="subtle" color="grey">
-        <IconDotsVertical />
-      </ActionIcon>
-    </Center>
-  </Accordion.Item>
-);
+
+  colorMaps?: string[];
+  onColorMapChange?: (cm: string) => void;
+
+  gamma?: number;
+  onGammaChange?: (gamma: number) => void;
+}> = ({ mesh, onMeshDelete, colorMaps, onColorMapChange, gamma, onGammaChange }) => {
+  const [currentColorMap, setCurrentColorMap] = useState<string | undefined>(
+    colorMaps && colorMaps[0]
+  );
+
+  return (
+    <Accordion.Item value={mesh.name}>
+      <Center>
+        <Accordion.Control>{mesh.name}</Accordion.Control>
+        {colorMaps && currentColorMap && onColorMapChange && (
+          <ColorMapPopoverSelector
+            colorMaps={colorMaps}
+            currentColorMap={currentColorMap}
+            onColorMapChange={(cm) => {
+              onColorMapChange(cm);
+              setCurrentColorMap(cm);
+            }}
+            gamma={gamma}
+            onGammaChange={onGammaChange}
+          />
+        )}
+
+        <ActionIcon size="lg" variant="subtle" color="red" onClick={() => onMeshDelete(mesh)}>
+          <IconTrash />
+        </ActionIcon>
+      </Center>
+    </Accordion.Item>
+  );
+};
 
 export const MeshController: React.FC<{
   meshes: NVMesh[];
   onMeshAdd: (meshBuilder: (gl: WebGL2RenderingContext) => Promise<NVMesh>) => void;
   onMeshDelete: (volume: NVMesh) => void;
-}> = ({ meshes, onMeshAdd, onMeshDelete }) => {
+
+  colorMaps?: string[];
+  onColorMapChange?: (mesh: NVMesh, cm: string) => void;
+
+  onGammaChange?: (gamma: number) => void;
+}> = ({ meshes, onMeshAdd, onMeshDelete, colorMaps, onColorMapChange, onGammaChange }) => {
   const [meshFile, setMeshFile] = useState<File | null>(null);
 
   const [loading, setLoading] = useState(false);
+
+  const [gamma, setGamma] = useState(1);
 
   const decompressAsync = (buffer: ArrayBuffer) =>
     new Promise<Uint8Array>((resolve, reject) => {
@@ -74,7 +104,7 @@ export const MeshController: React.FC<{
   };
 
   return (
-    <Accordion chevron={false} maw={400} mx="auto" multiple>
+    <Accordion chevron={false} maw="24em" mx="auto" multiple>
       <Group>
         <FileInput
           size="xs"
@@ -97,7 +127,18 @@ export const MeshController: React.FC<{
       </Group>
 
       {meshes.map((mesh) => (
-        <MeshItem key={mesh.id} mesh={mesh} onMeshDelete={onMeshDelete} />
+        <MeshItem
+          key={mesh.id}
+          mesh={mesh}
+          onMeshDelete={onMeshDelete}
+          colorMaps={colorMaps}
+          onColorMapChange={(cm) => onColorMapChange && onColorMapChange(mesh, cm)}
+          gamma={gamma}
+          onGammaChange={(g) => {
+            onGammaChange && onGammaChange(g);
+            setGamma(g);
+          }}
+        />
       ))}
     </Accordion>
   );
