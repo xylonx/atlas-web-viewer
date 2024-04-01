@@ -2,6 +2,7 @@ import { TinyColor } from '@ctrl/tinycolor';
 import {
   Accordion,
   ActionIcon,
+  Avatar,
   Center,
   ColorInput,
   Group,
@@ -10,43 +11,50 @@ import {
   Text,
   TextInput,
 } from '@mantine/core';
-import { useDisclosure } from '@mantine/hooks';
 import { LabelLineTerminator, LabelTextAlignment, NVLabel3D } from '@niivue/niivue';
-import { IconEye, IconEyeOff, IconPlus, IconTrash } from '@tabler/icons-react';
+import { IconPlus, IconTrash } from '@tabler/icons-react';
 import { useState } from 'react';
 import { toast } from 'react-toastify';
 
 const LabelItem: React.FC<{
   id: string;
+  hexColor: string;
   label: NVLabel3D;
   onLabelHide: (label: NVLabel3D, hide: boolean) => void;
   onLabelDelete: (label: NVLabel3D) => void;
-}> = ({ id, label, onLabelHide, onLabelDelete }) => {
-  const [hide, { toggle }] = useDisclosure(false);
+}> = ({ id, label, hexColor, onLabelDelete }) => (
+  // const [hide, { toggle }] = useDisclosure(false);
 
-  const handleLabelHide = () => {
-    onLabelHide(label, !hide);
-    toggle();
-  };
+  // const handleLabelHide = () => {
+  //   onLabelHide(label, !hide);
+  //   toggle();
+  // };
 
-  return (
-    <Accordion.Item value={id}>
-      <Center>
-        <Accordion.Control>{label.text}</Accordion.Control>
-        <ActionIcon size="lg" variant="subtle" color="grey" onClick={handleLabelHide}>
+  <Accordion.Item value={id}>
+    <Center>
+      <Accordion.Control>
+        <Group>
+          <Avatar color={hexColor} size="sm" variant="filled" opacity={1}>
+            {' '}
+          </Avatar>
+          <div>
+            <Text>{label.text}</Text>
+          </div>
+        </Group>
+      </Accordion.Control>
+      {/* <ActionIcon size="lg" variant="subtle" color="grey" onClick={handleLabelHide}>
           {hide ? <IconEyeOff /> : <IconEye />}
-        </ActionIcon>
-        <ActionIcon size="lg" variant="subtle" color="red" onClick={() => onLabelDelete(label)}>
-          <IconTrash />
-        </ActionIcon>
-      </Center>
-      <Accordion.Panel>
-        <Text>Size: {label.style.lineWidth}</Text>
-        <Text>Position: {label.points?.map((p) => (p as number).toFixed(2)).join(', ')}</Text>
-      </Accordion.Panel>
-    </Accordion.Item>
-  );
-};
+        </ActionIcon> */}
+      <ActionIcon size="lg" variant="subtle" color="red" onClick={() => onLabelDelete(label)}>
+        <IconTrash />
+      </ActionIcon>
+    </Center>
+    <Accordion.Panel>
+      <Text>Size: {label.style.lineWidth}</Text>
+      <Text>Position: {label.points?.map((p) => (p as number).toFixed(2)).join(', ')}</Text>
+    </Accordion.Panel>
+  </Accordion.Item>
+);
 
 export const LabelPanel: React.FC<{
   position: number[];
@@ -67,24 +75,23 @@ export const LabelPanel: React.FC<{
     }
 
     const color = new TinyColor(currentColor).toRgb();
-    const rgbaColor = [color.r, color.g, color.b, color.a];
+    const rgbColor = [color.r, color.g, color.b, 1.0];
+
+    toast.info(`rgb color: ${rgbColor}`);
 
     const nvlabel = new NVLabel3D(
       currentText,
       {
-        textColor: rgbaColor,
+        textColor: rgbColor,
         textScale: 1.0,
         textAlignment: LabelTextAlignment.RIGHT,
         lineWidth: currentSize,
-        lineColor: rgbaColor,
+        lineColor: rgbColor,
         lineTerminator: LabelLineTerminator.NONE,
         bulletScale: 0.0,
-        bulletColor: rgbaColor,
       },
       position
     );
-
-    setCurrentText('');
 
     onLabelAdd(nvlabel);
   };
@@ -97,7 +104,7 @@ export const LabelPanel: React.FC<{
           label="color"
           style={{ width: '8em' }}
           onChangeEnd={setCurrentColor}
-          format="hexa"
+          format="hex"
         />
         <NumberInput
           label="size"
@@ -110,8 +117,6 @@ export const LabelPanel: React.FC<{
         />
         <TextInput value={position.map((p) => p.toFixed(2)).join(', ')} disabled label="position" />
       </Group>
-
-      {/* <Group my="md"></Group> */}
 
       <Accordion chevron={false} p="md">
         <Accordion.Item value="add new">
@@ -138,6 +143,11 @@ export const LabelPanel: React.FC<{
             key={idx}
             id={`${idx}`}
             label={label}
+            hexColor={new TinyColor({
+              r: label.style.textColor[0],
+              g: label.style.textColor[1],
+              b: label.style.textColor[2],
+            }).toHex()}
             onLabelHide={onLabelHide}
             onLabelDelete={onLabelDelete}
           />

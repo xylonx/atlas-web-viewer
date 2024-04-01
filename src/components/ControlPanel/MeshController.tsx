@@ -24,7 +24,7 @@ const MeshItem: React.FC<{
     <Accordion.Item value={mesh.name}>
       <Center>
         <Accordion.Control>{mesh.name}</Accordion.Control>
-        {colorMaps && currentColorMap && onColorMapChange && (
+        {colorMaps && currentColorMap && onColorMapChange && mesh.layers.length !== 0 && (
           <ColorMapPopoverSelector
             colorMaps={colorMaps}
             currentColorMap={currentColorMap}
@@ -94,6 +94,8 @@ export const MeshController: React.FC<{
             name: meshFile.name,
             opacity: 1,
             visible: true,
+            // TODO(xylonx): enrich layers
+            layers: [],
           })
         );
       }

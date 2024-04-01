@@ -159,6 +159,8 @@ export function HomePage() {
 
     setLabels([label, ...labels]);
     appendNVLabel(nv3DRef, label);
+
+    console.log(`all labels: ${JSON.stringify(nv3DRef.current.document.labels)}`);
   };
 
   const handleLabelHide = (label: NVLabel3D, hide: boolean) => {
@@ -194,19 +196,13 @@ export function HomePage() {
       return;
     }
 
-    nv3DRef.current.meshes[idx].setLayerProperty(1, 'colormap', cm, nv3DRef.current.gl);
-    nv2DRef.current.meshes[idx].setLayerProperty(1, 'colormap', cm, nv3DRef.current.gl);
-
-    nv3DRef.current.updateGLVolume();
-    nv2DRef.current.updateGLVolume();
+    nv3DRef.current.meshes[idx].setLayerProperty(0, 'colormap', cm, nv3DRef.current.gl);
+    nv2DRef.current.meshes[idx].setLayerProperty(0, 'colormap', cm, nv3DRef.current.gl);
   };
 
   const handleGammaChange = (gamma: number) => {
     nv3DRef.current.setGamma(gamma);
     nv2DRef.current.setGamma(gamma);
-
-    nv3DRef.current.updateGLVolume();
-    nv2DRef.current.updateGLVolume();
   };
 
   return (
