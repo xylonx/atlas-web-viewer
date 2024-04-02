@@ -58,8 +58,6 @@ export const LabelPanel: React.FC<{
     const color = new TinyColor(currentColor).toRgb();
     const rgbColor = [color.r, color.g, color.b, 1.0];
 
-    toast.info(`rgb color: ${rgbColor}`);
-
     const nvlabel = new NVLabel3D(
       currentText,
       {
