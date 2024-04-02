@@ -104,9 +104,7 @@ const VolumeItem: React.FC<{
   gamma,
   onGammaChange,
 }) => {
-  const [currentColorMap, setCurrentColorMap] = useState<string | undefined>(
-    colorMaps && colorMaps[0]
-  );
+  const [currentColorMap, setCurrentColorMap] = useState<string | undefined>(colorMaps && 'gray');
 
   return (
     <Accordion.Item value={volume.volume.name}>
