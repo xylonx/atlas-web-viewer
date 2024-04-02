@@ -1,4 +1,5 @@
 import { MantineProvider } from '@mantine/core';
+import { Analytics } from '@vercel/analytics/react';
 import { ToastContainer, Zoom } from 'react-toastify';
 import { Router } from './Router';
 import { theme } from './theme';
@@ -22,6 +23,8 @@ export default function App() {
         theme="colored"
         transition={Zoom}
       />
+
+      <Analytics />
     </MantineProvider>
   );
 }
