@@ -2,7 +2,6 @@ import { TinyColor } from '@ctrl/tinycolor';
 import {
   Accordion,
   ActionIcon,
-  Avatar,
   Center,
   ColorInput,
   Group,
@@ -18,33 +17,12 @@ import { toast } from 'react-toastify';
 
 const LabelItem: React.FC<{
   id: string;
-  hexColor: string;
   label: NVLabel3D;
   onLabelHide: (label: NVLabel3D, hide: boolean) => void;
   onLabelDelete: (label: NVLabel3D) => void;
-}> = ({ id, label, hexColor, onLabelDelete }) => (
-  // const [hide, { toggle }] = useDisclosure(false);
-
-  // const handleLabelHide = () => {
-  //   onLabelHide(label, !hide);
-  //   toggle();
-  // };
-
+}> = ({ id, label, onLabelDelete }) => (
   <Accordion.Item value={id}>
     <Center>
-      <Accordion.Control>
-        <Group>
-          <Avatar color={hexColor} size="sm" variant="filled" opacity={1}>
-            {' '}
-          </Avatar>
-          <div>
-            <Text>{label.text}</Text>
-          </div>
-        </Group>
-      </Accordion.Control>
-      {/* <ActionIcon size="lg" variant="subtle" color="grey" onClick={handleLabelHide}>
-          {hide ? <IconEyeOff /> : <IconEye />}
-        </ActionIcon> */}
       <ActionIcon size="lg" variant="subtle" color="red" onClick={() => onLabelDelete(label)}>
         <IconTrash />
       </ActionIcon>
@@ -143,11 +121,6 @@ export const LabelPanel: React.FC<{
             key={idx}
             id={`${idx}`}
             label={label}
-            hexColor={new TinyColor({
-              r: label.style.textColor[0],
-              g: label.style.textColor[1],
-              b: label.style.textColor[2],
-            }).toHex()}
             onLabelHide={onLabelHide}
             onLabelDelete={onLabelDelete}
           />
