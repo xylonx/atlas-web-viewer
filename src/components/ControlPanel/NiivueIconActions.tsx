@@ -16,7 +16,7 @@ export const GammaSlider: React.FC<{ gamma: number; onGammaChange: (gamma: numbe
   <Slider
     color="blue"
     value={gamma}
-    onChangeEnd={onGammaChange}
+    onChange={onGammaChange}
     min={0.1}
     max={4}
     step={0.01}
