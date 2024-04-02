@@ -23,6 +23,9 @@ const LabelItem: React.FC<{
 }> = ({ id, label, onLabelDelete }) => (
   <Accordion.Item value={id}>
     <Center>
+      <Accordion.Control>
+        <Text>{label.text}</Text>
+      </Accordion.Control>
       <ActionIcon size="lg" variant="subtle" color="red" onClick={() => onLabelDelete(label)}>
         <IconTrash />
       </ActionIcon>
