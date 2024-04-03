@@ -3,13 +3,18 @@ import {
   Box,
   Center,
   Flex,
+  Group,
+  Modal,
   ScrollArea,
   Stack,
   Text,
+  Title,
+  TypographyStylesProvider,
   useMantineColorScheme,
 } from '@mantine/core';
+import { useDisclosure } from '@mantine/hooks';
 import { DRAG_MODE, NVImage, NVLabel3D, NVMesh, Niivue, SLICE_TYPE } from '@niivue/niivue';
-import { IconSun, IconSunOff } from '@tabler/icons-react';
+import { IconHelp, IconSun, IconSunOff } from '@tabler/icons-react';
 import { useEffect, useRef, useState } from 'react';
 import { toast } from 'react-toastify';
 
@@ -214,6 +219,8 @@ export function HomePage() {
     nv2DRef.current.setGamma(gamma);
   };
 
+  const [helpOpened, { open: helpOpen, close: helpClose }] = useDisclosure(false);
+
   return (
     <>
       <Stack gap={0}>
@@ -223,19 +230,96 @@ export function HomePage() {
             <h3>Atlas Web Viewer</h3>
           </Center>
 
-          <ActionIcon
-            mr="md"
-            variant="transparent"
-            radius="xl"
-            aria-label="Settings"
-            onClick={() => {
-              colorScheme === 'dark' ? setColorScheme('light') : setColorScheme('dark');
-            }}
-          >
-            {colorScheme === 'dark' ? <IconSunOff /> : <IconSun />}
-          </ActionIcon>
+          <Group gap={0}>
+            <ActionIcon
+              mr="md"
+              variant="transparent"
+              radius="xl"
+              aria-label="help"
+              onClick={helpOpen}
+            >
+              <IconHelp />
+            </ActionIcon>
+            <ActionIcon
+              mr="md"
+              variant="transparent"
+              radius="xl"
+              aria-label="change color"
+              onClick={() => {
+                colorScheme === 'dark' ? setColorScheme('light') : setColorScheme('dark');
+              }}
+            >
+              {colorScheme === 'dark' ? <IconSunOff /> : <IconSun />}
+            </ActionIcon>
+          </Group>
         </Flex>
-        {/* <Group h="100%" px="md"></Group> */}
+
+        <Modal opened={helpOpened} onClose={helpClose} title="HELP">
+          <TypographyStylesProvider>
+            <Text>Welcome to the Interactive Web Viewer for White Matter Atlases.</Text>
+            <Text>
+              This tool allows you to explore and analyze white matter MRI data with ease. Follow
+              these simple steps to get started.
+            </Text>
+            <Title order={3}>Accessing the Viewer</Title>
+            <Text>
+              <Text span fw={700}>
+                Navigate to the Web Viewer:
+              </Text>
+              Upon accessing the viewer, you can view all the panels of this tool. Here, you can
+              find Control Panel and Label Panel on the left side, and 3D & 2D view panels on the
+              right side. Error messages, if generated, would pop up in the top right corner.
+            </Text>
+            <Text fs="italic">
+              All the data uploaded will be cleared upon closing or refreshing the page
+            </Text>
+            <Title order={3}>Atlas Selection</Title>
+            <Text>
+              In the volumes and meshes panels, you can upload your data model, then click the +
+              button to load the model. volumes supports the .nii format model, and you should
+              upload your volume description as a .csv file. meshes supports .vtk format model.
+            </Text>
+            <Text fs="italic">
+              Find more detailed data format descriptions at{' '}
+              <Text component="a" href="https://github.com/MASILab/Pandora-WhiteMatterAtlas">
+                Pandora-WhiteMatterAtlas
+              </Text>
+            </Text>
+            <Title order={3}>Track Selection</Title>
+            <Text>
+              After loading the model, click on the “…” button right to the model name to open a
+              panel for track selection. Each track represents a particular brain area in your
+              model, as described in the volume description .csv you uploaded. You can also change
+              rendering method and gamma factor by calling out a panel by clicking the
+              “3-blue-circle” button right to the model name, if existed such a button.
+            </Text>
+            <Title order={3}>Exploring the Atlas</Title>
+            <Text>
+              The main viewing area allows you to interact with the atlas. The upper and lower
+              panels are for different usage, depending on which kind of atlas your .nii model is.
+            </Text>
+            <Text>
+              Generally, you can rotate in the 3D view by left-clicking, holding and dragging the
+              mouse. Adjust the direction of the clip plane by right-clicking, holding and dragging
+              the mouse. Rolling your mouse wheel will smoothly change the clip plane’s position up
+              and down the current direction.
+            </Text>
+            <Title order={3}>Marking and Annotation</Title>
+            <Text>
+              In the Label Panel, you will find the coordinates of the current focus point on the
+              model, selected by dragging the red axis&apos;s intersection or a double left click on
+              your mouse.
+            </Text>
+            <Text>
+              - You can add one and only one label at the selected point.
+              <Text>
+                - You can set different colors and font sizes for the label, and add text notes to
+                the label
+                <Text>- Click the + button to confirm the label.</Text>
+              </Text>
+            </Text>
+          </TypographyStylesProvider>
+        </Modal>
 
         <Flex justify="flex-start" align="flex-start" direction="row" wrap="wrap">
           <Stack w={{ base: '100%', md: '30%' }}>
