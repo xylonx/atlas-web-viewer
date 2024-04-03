@@ -1,6 +1,15 @@
-import { Avatar, Box, Center, Flex, Group, ScrollArea, Stack, Text } from '@mantine/core';
+import {
+  ActionIcon,
+  Box,
+  Center,
+  Flex,
+  ScrollArea,
+  Stack,
+  Text,
+  useMantineColorScheme,
+} from '@mantine/core';
 import { DRAG_MODE, NVImage, NVLabel3D, NVMesh, Niivue, SLICE_TYPE } from '@niivue/niivue';
-import { IconStar } from '@tabler/icons-react';
+import { IconSun, IconSunOff } from '@tabler/icons-react';
 import { useEffect, useRef, useState } from 'react';
 import { toast } from 'react-toastify';
 
@@ -10,6 +19,8 @@ import { LabelPanel } from '@/components/LabelPanel/LabelPanel';
 import { NiivueCanvas } from '@/components/NiivueCanvas/NiivueCanvas';
 
 export function HomePage() {
+  const { colorScheme, setColorScheme } = useMantineColorScheme();
+
   const nv3DRef = useRef<Niivue>(
     new Niivue({
       logLevel: 'error',
@@ -159,8 +170,6 @@ export function HomePage() {
 
     setLabels([label, ...labels]);
     appendNVLabel(nv3DRef, label);
-
-    console.log(`all labels: ${JSON.stringify(nv3DRef.current.document.labels)}`);
   };
 
   const handleLabelHide = (label: NVLabel3D, hide: boolean) => {
@@ -207,13 +216,26 @@ export function HomePage() {
 
   return (
     <>
-      <Stack>
-        <Group h="100%" px="md">
-          <Avatar color="blue" radius="sm">
-            <IconStar size="1.5rem" />
-          </Avatar>
-          <Center>Atlas Web Viewer</Center>
-        </Group>
+      <Stack gap={0}>
+        <Flex align="center" gap={2} content="center" justify="space-between">
+          <div></div>
+          <Center>
+            <h3>Atlas Web Viewer</h3>
+          </Center>
+
+          <ActionIcon
+            mr="md"
+            variant="transparent"
+            radius="xl"
+            aria-label="Settings"
+            onClick={() => {
+              colorScheme === 'dark' ? setColorScheme('light') : setColorScheme('dark');
+            }}
+          >
+            {colorScheme === 'dark' ? <IconSunOff /> : <IconSun />}
+          </ActionIcon>
+        </Flex>
+        {/* <Group h="100%" px="md"></Group> */}
 
         <Flex justify="flex-start" align="flex-start" direction="row" wrap="wrap">
           <Stack w={{ base: '100%', md: '30%' }}>
@@ -252,8 +274,8 @@ export function HomePage() {
             </ScrollArea>
           </Stack>
 
-          <Stack w={{ base: '100%', md: '70%' }}>
-            <Box style={{ height: '40vh' }}>
+          <Stack w={{ base: '100%', md: '70%' }} gap={2}>
+            <Box style={{ height: '48vh' }}>
               <NiivueCanvas
                 nv={nv3DRef}
                 scale={scale}
@@ -262,7 +284,7 @@ export function HomePage() {
                 onPositionChange={setPosition}
               />
             </Box>
-            <Box style={{ height: '48vh' }}>
+            <Box style={{ height: '46vh' }}>
               <NiivueCanvas nv={nv2DRef} />
             </Box>
           </Stack>

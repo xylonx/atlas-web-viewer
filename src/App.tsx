@@ -2,14 +2,13 @@ import { MantineProvider } from '@mantine/core';
 import { Analytics } from '@vercel/analytics/react';
 import { ToastContainer, Zoom } from 'react-toastify';
 import { Router } from './Router';
-import { theme } from './theme';
 
 import '@mantine/core/styles.css';
 import 'react-toastify/dist/ReactToastify.css';
 
 export default function App() {
   return (
-    <MantineProvider theme={theme}>
+    <MantineProvider defaultColorScheme="dark">
       <Router />
       <ToastContainer
         position="top-right"
